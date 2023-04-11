@@ -5,26 +5,58 @@ import {AiTwotoneStar} from 'react-icons/ai'
 
 
 const Search = () => {
+    // lets trake for scroll event 
+   
     const [searchData,setSearchData] = useState([])
+    const [pagination,setPagination] = useState({})
     // const [start,setStart] = useState([<AiTwotoneStar/>,<AiTwotoneStar/>])
     const {name} = useParams();
     const URL = `http://localhost:1337`
     useEffect(() => {
-        fetch(`http://localhost:1337/api/businesses?filters[sub_category][name][$containsi]=${name}&populate=*`,{
+
+        window.addEventListener("scroll",(e) => {
+            const {scrollTop, scrollHeight, clientHeight} = document.documentElement
+            if(scrollTop + clientHeight >= scrollHeight - 50){
+                    // CALL THE API WITH NEXT PAGE
+                    // var pp = pagination.page;
+                    // Lets check if we are not on the last page
+                    if(pagination.page < pagination.pageCount){
+                        // call the api
+                        getBusiness(pagination.page +  1)
+                        //also update the pagination meta data i.e page no
+                        setPagination({
+                                 ...pagination,
+                                 page:pagination.page + 1
+                             })
+                    }
+                    // getBusiness((pagination.page < pagination.pageCount)?(pagination.page + 1):1 );
+                
+            }
+        })
+
+        getBusiness();
+       
+    },[])
+    const getBusiness = (page=1,pageSize=3) => { // formal argument
+        fetch(`http://localhost:1337/api/businesses?filters[sub_category][name][$containsi]=${name}&pagination[page]=${page}&pagination[pageSize]=${pageSize}&populate=*`,{
             method:'GET',
              headers:{
                  "Authorization":"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MzcsImlhdCI6MTY3OTI0MDcxMiwiZXhwIjoxNjgxODMyNzEyfQ.3wDHLZyyf68THE1Etn60K9jUZ6jgzPfrj-b15NG8PYg"
             }
-
         }).then((res) => {
             return res.json()
         }).then((data) => {
             // console.log(data.data);
-            setSearchData(data.data)
+            setSearchData([
+                //get the previous value and adding new value
+                ...searchData, //...spread operator/copy operator
+                ...data.data
+            ])
+            setPagination(data.meta.pagination); // overwrite
         }).catch((err) => {
             console.log(err);
         })
-    },[])
+    }
 
     const ratingFilter = (e) => {
         // console.log(e.target);
