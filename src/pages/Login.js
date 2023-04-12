@@ -20,13 +20,19 @@ const Login = () => {
        return res.json();
       })
       .then((data) => { 
-        console.log(data);
+        console.log(data.user.fname);
       
         if(data.data === null ){
           swal('Bad Job!',`${data.error.message}`,"error") 
         }else{
           swal("Good job!", "User Login successfully", "success"); 
-          window.localStorage.setItem("user",JSON.stringify(data["user"]))
+          // window.localStorage.setItem("user",JSON.stringify(data["user"]))
+          window.localStorage.setItem('user_id',data["user"].id)
+          window.localStorage.setItem("fname",data["user"].fname)
+          window.localStorage.setItem('mname',data["user"].mname)
+          window.localStorage.setItem('lname',data["user"].lname)
+          window.localStorage.setItem('mobno',data["user"].mobno)
+          window.localStorage.setItem('email',data["user"].email)
           window.localStorage.setItem("jwt_token",data["jwt"])
           navigate("/")
         }
@@ -43,6 +49,7 @@ const Login = () => {
     const { name, value } = e.target;
     setUserData({ ...userData, [name]: value }); 
   };
+  
   return (
     <section className="h-screen">
       <div className="h-full px-6 text-neutral-800 dark:text-neutral-200">
